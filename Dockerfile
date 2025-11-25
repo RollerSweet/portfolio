@@ -2,20 +2,28 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Install dependencies
 COPY package*.json ./
 RUN npm ci
 
-# Copy source
 COPY tsconfig*.json vite.config.ts tailwind.config.cjs postcss.config.cjs index.html ./
 COPY src ./src
 
-# Build
 RUN npm run build
 
-# Serve with nginx
-FROM nginx:alpine AS runner
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Runtime stage with Node to serve static files and media API
+FROM node:20-alpine AS runner
+WORKDIR /app
 
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+COPY --from=builder /app/package*.json ./
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/dist ./dist
+COPY server.cjs .
+
+# media directory will be mounted by docker-compose
+RUN mkdir -p /app/media
+
+ENV PORT=3000
+EXPOSE 3000
+
+CMD ["node", "server.cjs"]
