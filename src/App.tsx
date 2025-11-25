@@ -43,7 +43,7 @@ const skills: Skill[] = [
   { name: 'FPV & Drones', description: 'Aerial footage capture & editing', icon: Drone },
 ];
 
-import profileImage from './Portrait.jpg';
+const profileImage = '/Portrait.jpg';
 
 const SkillCard = ({ skill, index }: SkillCardProps) => {
   const Icon = skill.icon;
