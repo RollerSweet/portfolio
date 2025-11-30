@@ -59,6 +59,18 @@ The compose file maps `./drone-media` into the container at `/app/media` (read-o
 - The production site runs inside my homelab as a Kubernetes Deployment on K3s with GitOps deployment automation.
 - The Dockerfile outputs a Node runtime image serving static assets + API (no Nginx needed). To deploy elsewhere, build/push the image and run with any container orchestrator, remembering to mount media at `/app/media`.
 
+### Build & push multi-arch images
+
+If you want to build and push images for both amd64 and arm64 (matching my home lab + cloud runners), use Docker Buildx:
+
+```bash
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t ghcr.io/rollersweet/portfolio:v2 \
+  -t ghcr.io/rollersweet/portfolio:latest \
+  --push .
+```
+
 ## Customization
 
 - Update `src/App.tsx` to change hero text, social links, or skills.

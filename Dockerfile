@@ -1,5 +1,5 @@
-# Builder stage: install deps and build static assets
-FROM node:20-alpine AS builder
+# Builder stage: run on the build machine's architecture
+FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
 WORKDIR /app
 
 COPY package*.json ./
@@ -11,8 +11,8 @@ COPY public ./public
 
 RUN npm run build
 
-# Runtime stage with Node to serve static files and media API
-FROM node:20-alpine AS runner
+# Runtime stage: built for the target platform (cluster nodes)
+FROM --platform=$TARGETPLATFORM node:20-alpine AS runner
 WORKDIR /app
 
 COPY --from=builder /app/package*.json ./
@@ -21,9 +21,10 @@ RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
 COPY server.cjs .
 
-# media directory will be mounted by docker-compose
+# media directory will be mounted by docker-compose / k8s volume
 RUN mkdir -p /app/media
 
+ENV NODE_ENV=production
 ENV PORT=3000
 EXPOSE 3000
 

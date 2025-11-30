@@ -39,9 +39,15 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
-  tls: []  # add later if using cert-manager
+  tls: []
 
-resources: {}
+resources:
+  requests:
+    cpu: "50m"
+    memory: "128Mi"
+  limits:
+    cpu: "250m"
+    memory: "256Mi"
 
 autoscaling:
   enabled: false
