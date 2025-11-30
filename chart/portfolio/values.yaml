@@ -1,0 +1,62 @@
+replicaCount: 1
+
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: ghcr.io/rollersweet/portfolio
+  tag: "v1"
+  pullPolicy: Always
+
+imagePullSecrets: []
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+  automount: true
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 80
+
+containerPort: 3000
+
+volumeMounts: []
+volumes: []
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: portfolio.tamirmadar.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []  # add later if using cert-manager
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: null
+
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs: []
+  hostnames: []
+  rules: []
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

@@ -1,0 +1,14 @@
+Portfolio is ready.
+{{- if .Values.httpRoute.enabled }}
+HTTPRoute traffic targets {{ include "portfolio.fullname" . }} on port {{ .Values.service.port }}.
+{{- else if .Values.ingress.enabled }}
+{{- $hosts := default (list (dict "host" "localhost" "paths" (list (dict "path" "/")))) .Values.ingress.hosts }}
+{{- $host := index $hosts 0 }}
+{{- $paths := default (list (dict "path" "/")) $host.paths }}
+{{- $path := default "/" (index $paths 0).path }}
+Browse to http{{ if .Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ $path }}.
+{{- else if contains "LoadBalancer" .Values.service.type }}
+Wait for the LoadBalancer IP: `kubectl get svc {{ include "portfolio.fullname" . }} -n {{ .Release.Namespace }}`.
+{{- else }}
+Port-forward the service: `kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "portfolio.fullname" . }} 8080:{{ .Values.service.port }}` then visit http://127.0.0.1:8080.
+{{- end }}
