@@ -133,10 +133,10 @@ export default function App() {
                 </p>
 
                 {/* Social Links */}
-                <div className="flex flex-wrap items-center justify-center gap-4">
+                <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
                   <button
                     onClick={() => navigate('/drone-footage')}
-                    className="group flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:bg-white/20"
+                    className="group flex w-32 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 backdrop-blur-xl text-sm font-medium transition-all duration-300 hover:scale-105 hover:bg-white/20"
                   >
                     <Drone className="h-5 w-5 text-white transition-colors group-hover:text-purple-300" />
                     <span className="text-sm font-medium text-white">Drone</span>
@@ -145,7 +145,7 @@ export default function App() {
                     href="https://github.com/RollerSweet"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:bg-white/20"
+                    className="group flex w-32 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 backdrop-blur-xl text-sm font-medium transition-all duration-300 hover:scale-105 hover:bg-white/20"
                   >
                     <Github className="h-5 w-5 text-white transition-colors group-hover:text-purple-400" />
                     <span className="text-sm font-medium text-white">GitHub</span>
@@ -154,7 +154,7 @@ export default function App() {
                     href="https://www.linkedin.com/in/tamir-madar-11901521a/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:bg-white/20"
+                    className="group flex w-32 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 backdrop-blur-xl text-sm font-medium transition-all duration-300 hover:scale-105 hover:bg-white/20"
                   >
                     <Linkedin className="h-5 w-5 text-white transition-colors group-hover:text-blue-400" />
                     <span className="text-sm font-medium text-white">LinkedIn</span>
@@ -163,7 +163,7 @@ export default function App() {
                     href="https://cv.tamirmadar.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-3 transition-all duration-300 hover:scale-105 hover:opacity-90 shadow-lg shadow-purple-500/30"
+                    className="group flex w-32 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-3 text-sm font-medium transition-all duration-300 hover:scale-105 hover:opacity-90 shadow-lg shadow-purple-500/30"
                   >
                     <FileText className="h-5 w-5 text-white" />
                     <span className="text-sm font-medium text-white">Resume</span>
