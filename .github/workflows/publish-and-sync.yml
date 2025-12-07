@@ -98,3 +98,4 @@ jobs:
           tags: |
             ${{ steps.vars.outputs.image }}
             ${{ steps.vars.outputs.latest_image }}
+
