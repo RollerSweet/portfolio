@@ -74,22 +74,41 @@ jobs:
           PACKAGE_NAME=$(echo "${REPO_LOWER}" | awk -F'/' '{print $2}')
           OWNER_NORMALIZED=$(echo "${OWNER}" | tr '[:upper:]' '[:lower:]')
 
-          # Determine owner type (user or org)
-          OWNER_TYPE_JSON=$(curl -fsSL \
-            -H "Authorization: Bearer ${REGISTRY_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/users/${OWNER_NORMALIZED}" || true)
-
           OWNER_TYPE=""
-          OWNER_TYPE_PARSED=""
-          if OWNER_TYPE_PARSED=$(printf '%s' "${OWNER_TYPE_JSON:-{}}" | jq -r '.type // empty' 2>/dev/null); then
-            OWNER_TYPE="$OWNER_TYPE_PARSED"
-          else
-            echo "Failed to parse owner metadata" >&2
+
+          # Prefer owner type from the event payload to avoid extra API calls
+          if [ -z "${OWNER_TYPE}" ] && [ -n "${GITHUB_EVENT_PATH:-}" ] && [ -f "${GITHUB_EVENT_PATH}" ]; then
+            OWNER_TYPE_FROM_EVENT=""
+            if OWNER_TYPE_FROM_EVENT=$(jq -r '.repository.owner.type // .organization.type // empty' "${GITHUB_EVENT_PATH}" 2>/dev/null); then
+              OWNER_TYPE="$OWNER_TYPE_FROM_EVENT"
+            else
+              OWNER_TYPE_FROM_EVENT=""
+            fi
+            if [ "${OWNER_TYPE}" = "null" ]; then
+              OWNER_TYPE=""
+            fi
+          fi
+
+          # Fallback to querying the API if the event payload did not include the type
+          if [ -z "${OWNER_TYPE}" ]; then
+            OWNER_TYPE_JSON=$(curl -fsSL \
+              -H "Authorization: Bearer ${REGISTRY_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/users/${OWNER_NORMALIZED}" || true)
+
+            OWNER_TYPE_PARSED=""
+            if OWNER_TYPE_PARSED=$(printf '%s' "${OWNER_TYPE_JSON:-{}}" | jq -r '.type // empty' 2>/dev/null); then
+              OWNER_TYPE="$OWNER_TYPE_PARSED"
+            else
+              echo "Failed to parse owner metadata" >&2
+            fi
+            if [ "${OWNER_TYPE}" = "null" ]; then
+              OWNER_TYPE=""
+            fi
           fi
           if [ -z "${OWNER_TYPE}" ]; then
-            echo "Unable to determine owner type for ${OWNER}" >&2
-            exit 1
+            echo "Owner type unavailable from event or API, defaulting to user scope" >&2
+            OWNER_TYPE="User"
           fi
 
           OWNER_SCOPE="users"
