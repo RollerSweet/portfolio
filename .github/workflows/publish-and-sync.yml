@@ -79,7 +79,13 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/users/${OWNER}" || true)
 
-          OWNER_TYPE=$(echo "${OWNER_TYPE_JSON:-{}}" | jq -r '.type // empty')
+          OWNER_TYPE=""
+          OWNER_TYPE_PARSED=""
+          if OWNER_TYPE_PARSED=$(printf '%s' "${OWNER_TYPE_JSON:-{}}" | jq -r '.type // empty' 2>/dev/null); then
+            OWNER_TYPE="$OWNER_TYPE_PARSED"
+          else
+            echo "Failed to parse owner metadata" >&2
+          fi
           if [ -z "${OWNER_TYPE}" ]; then
             echo "Unable to determine owner type for ${OWNER}" >&2
             exit 1
@@ -99,7 +105,8 @@ jobs:
             "${API_URL}" || true)
 
           # Find highest vMAJOR.MINOR.PATCH (e.g. v1.2.3). Default to 0.0.0 if none.
-          LAST_VERSION=$(echo "${TAGS_JSON:-[]}" | jq -r '
+          LAST_VERSION="0.0.0"
+          if LAST_VERSION_PARSED=$(printf '%s' "${TAGS_JSON:-[]}" | jq -r '
             (map(.metadata.container.tags // []) | add // [])
             | map(select(test("^v[0-9]+\\.[0-9]+\\.[0-9]+$")))
             | if length == 0 then
@@ -111,7 +118,11 @@ jobs:
                 | last
                 | "\(.major).\(.minor).\(.patch)"
               end
-          ')
+          ' 2>/dev/null); then
+            LAST_VERSION="$LAST_VERSION_PARSED"
+          else
+            echo "Failed to parse existing tags, defaulting to 0.0.0" >&2
+          fi
 
           echo "Latest version found in GHCR: ${LAST_VERSION}"
 
