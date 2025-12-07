@@ -1,4 +1,4 @@
-# Builder stage: run on the build machine's architecture
+# Builder stage: run on the build machine's architecture.
 FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
 WORKDIR /app
 
