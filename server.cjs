@@ -11,6 +11,10 @@ const mediaDir = path.join(__dirname, 'media');
 app.use('/media', express.static(mediaDir, { fallthrough: false }));
 app.use(express.static(distDir));
 
+app.get('/healthz', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 app.get('/api/media', async (_req, res) => {
   try {
     const entries = await fs.readdir(mediaDir, { withFileTypes: true });
