@@ -29,12 +29,16 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ -n "$GHCR_PAT" ]; then
+            echo "::add-mask::$GHCR_PAT"
             echo "username=$OWNER" >> "$GITHUB_OUTPUT"
             echo "password=$GHCR_PAT" >> "$GITHUB_OUTPUT"
+            echo "token=$GHCR_PAT" >> "$GITHUB_OUTPUT"
             echo "Using GHCR_PAT for authentication"
           else
+            echo "::add-mask::$TOKEN"
             echo "username=$ACTOR" >> "$GITHUB_OUTPUT"
             echo "password=$TOKEN" >> "$GITHUB_OUTPUT"
+            echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
             echo "Falling back to GITHUB_TOKEN for authentication"
           fi
 
@@ -53,17 +57,36 @@ jobs:
 
       - name: Compute image tag
         id: vars
+        env:
+          REPO: ${{ github.repository }}
+          REGISTRY_TOKEN: ${{ steps.registry-creds.outputs.token }}
         run: |
-          VERSION=$(jq -r .version package.json)
-          TAG="${VERSION}-${GITHUB_RUN_NUMBER}"
-          # Docker registry requires lowercase repository names
-          REPO_LOWER=$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+          set -euo pipefail
+          if [ -z "${REGISTRY_TOKEN:-}" ]; then
+            echo "Registry token is required to query existing tags" >&2
+            exit 1
+          fi
+          REPO_LOWER=$(echo "${REPO}" | tr '[:upper:]' '[:lower:]')
+          API_URL="https://${REGISTRY}/v2/${REPO_LOWER}/tags/list?n=200"
+          echo "Fetching tags from ${API_URL}"
+
+          TAGS_JSON=$(curl -fsSL -H "Authorization: Bearer ${REGISTRY_TOKEN}" "${API_URL}" || true)
+          LAST_VERSION=$(echo "${TAGS_JSON:-{}}" | jq -r '
+            (.tags // [])
+            | map(select(test("^v[0-9]+$")))
+            | map(ltrimstr("v") | tonumber)
+            | max? // 0
+          ')
+          NEXT_VERSION=$((LAST_VERSION + 1))
+          TAG="v${NEXT_VERSION}"
           IMAGE="${REGISTRY}/${REPO_LOWER}:${TAG}"
+          LATEST_IMAGE="${REGISTRY}/${REPO_LOWER}:latest"
 
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "image=${IMAGE}" >> "$GITHUB_OUTPUT"
+          echo "latest_image=${LATEST_IMAGE}" >> "$GITHUB_OUTPUT"
 
-          echo "Using image: ${IMAGE}"
+          echo "Using version tag: ${TAG}"
 
       - name: Build & push multi-arch image
         uses: docker/build-push-action@v6
@@ -74,3 +97,4 @@ jobs:
           push: true
           tags: |
             ${{ steps.vars.outputs.image }}
+            ${{ steps.vars.outputs.latest_image }}
