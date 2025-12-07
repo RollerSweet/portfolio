@@ -40,7 +40,7 @@ persistence:
   existingClaim: ""
   size: 1Gi
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   storageClass: ""
   mountPath: /app/media
 
