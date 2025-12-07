@@ -38,8 +38,9 @@ jobs:
         run: |
           VERSION=$(jq -r .version package.json)
           TAG="${VERSION}-${GITHUB_RUN_NUMBER}"
-
-          IMAGE="${REGISTRY}/${GITHUB_REPOSITORY}:${TAG}"
+          # Docker registry requires lowercase repository names
+          REPO_LOWER=$(echo "${GITHUB_REPOSITORY}" | tr '[:upper:]' '[:lower:]')
+          IMAGE="${REGISTRY}/${REPO_LOWER}:${TAG}"
 
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "image=${IMAGE}" >> "$GITHUB_OUTPUT"
