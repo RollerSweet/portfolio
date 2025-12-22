@@ -125,7 +125,7 @@ export default function App() {
                 {/* Name & Title */}
                 <h1 className="mb-4 text-5xl font-bold tracking-tight text-white md:text-7xl">Tamir Madar</h1>
                 <p className="mb-6 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-xl font-medium text-transparent md:text-2xl">
-                  DevOps Engineer
+                  Senior DevOps Engineer
                 </p>
                 <p className="mb-8 mx-auto max-w-xl text-lg leading-relaxed text-white/60">
                   Building robust infrastructure, automating everything, and running production workloads on my own Kubernetes
