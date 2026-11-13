@@ -6,3 +6,8 @@ services:
     volumes:
       - ./drone-media:/app/media:ro
     restart: unless-stopped
+    # hardening (2026-11-13): non-root (USER node in Dockerfile), read-only, no extra capabilities
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: [/tmp]

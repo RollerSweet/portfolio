@@ -1,5 +1,5 @@
 # Builder stage: run on the build machine's architecture.
-FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:24-alpine AS builder
 WORKDIR /app
 
 COPY package*.json ./
@@ -12,7 +12,7 @@ COPY public ./public
 RUN npm run build
 
 # Runtime stage: built for the target platform (cluster nodes)
-FROM --platform=$TARGETPLATFORM node:20-alpine AS runner
+FROM --platform=$TARGETPLATFORM node:24-alpine AS runner
 WORKDIR /app
 
 COPY --from=builder /app/package*.json ./
@@ -28,4 +28,5 @@ ENV NODE_ENV=production
 ENV PORT=3000
 EXPOSE 3000
 
+USER node
 CMD ["node", "server.cjs"]
